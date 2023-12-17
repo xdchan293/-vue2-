@@ -16,25 +16,11 @@
     <h2 style="text-align: center">动物识别系统</h2>
     规则：
     <div class="rule">
-        <p>R1 IF 该动物有奶 THEN 该动物是哺乳动物</p>
-        <p>R2 IF 该动物有毛发 THEN 该动物是哺乳动物</p>
-        <p>R3 IF 该动物有羽毛 THEN 该动物是鸟</p>
-        <p>R4 IF 该动物会飞 AND 会下蛋 THEN 该动物是鸟</p>
-        <p>R5 IF 该动物有爪 AND 有犬齿 AND 眼盯前方 THEN 该动物是食肉动物</p>
-        <p>R6 IF 该动物吃肉 THEN 该动物是肉食动物</p>
-        <p>R7 IF 该动物是哺乳动物 AND 有蹄 THEN 该动物是有蹄类动物</p>
-        <p>R8 IF 该动物是哺乳动物 AND 嚼反刍 THEN 该动物是有蹄类动物</p>
-        <p>R9 IF 该动物是哺乳动物 AND 该动物是食肉动物 AND 是黄褐色 AND 身上有黑色条纹 THEN 该动物是虎</p>
-        <p>R10 IF 该动物是哺乳动物 AND 该动物是食肉动物AND是黄褐色 AND 身上有暗斑点 THEN 该动物是金钱豹</p>
-        <p>R11 IF 该动物是有蹄类动物 AND 有长脖子 AND 有长腿 AND 身上有暗斑点 THEN 该动物是长颈鹿</p>
-        <p>R12 IF 该动物是有蹄类动物 AND 身上有黑色条纹 THEN 该动物是斑马</p>
-        <p>R13 IF 该动物是鸟 AND 有不会飞 AND 有长腿 AND 长脖子 AND 是黑白二色 THEN 该动物是鸵鸟</p>
-        <p>R14 IF 该动物是鸟 AND 不会飞 AND 会游泳 AND 是黑白二色 THEN 该动物是企鹅</p>
-        <p>R15 IF 该动物是鸟 AND 善飞
+        <p :key="item" v-for="item in ruleView">{{item}}</p>
     </div>
     特征：
     <div class="fact">
-        <div style="display: inline" v-for="(fact,index) in featureView">
+        <div style="display: inline" v-for="(fact,index) in [...featureView]">
             <el-button class="fact_item" plain v-on:click="addFact(index,fact)">{{fact}}</el-button>
         </div>
     </div>
@@ -52,29 +38,20 @@
 
     </div>
     <div class="button">
-        <el-button type="primary" plain v-on:click="matchRule()">推理</el-button>
+        <el-button type="primary" plain v-on:click="infer()">推理</el-button>
+        <el-button type="primary" plain v-on:click="infer(display_all)">带过程的推理</el-button>
         <el-button type="primary" plain v-on:click="resetSelect()">重置</el-button>
     </div>
     <el-dialog title="增加规则" :visible.sync="dialogVisible">
-        <div style="margin: 10px auto">
-            <img style="width: 100%" src="https://pic.downk.cc/item/5ee20abac2a9a83be59c565f.png">
-        </div>
+        
         <div>
-            <div>
-                结果：
-                <el-input
-                        placeholder="请输入内容"
-                        suffix-icon="el-icon-date"
-                        v-model="input0">
-                </el-input>
-            </div>
-            条件(默认为0):
+           
+            条件(默认为空):
             <div class="input-size">
                 <div class="item-input-size">
                     <el-input
 
                             placeholder="请输入内容"
-                            suffix-icon="el-icon-date"
                             v-model="input1">
                     </el-input>
                 </div>
@@ -82,7 +59,6 @@
                     <el-input
 
                             placeholder="请输入内容"
-                            suffix-icon="el-icon-date"
                             v-model="input2">
                     </el-input>
                 </div>
@@ -90,7 +66,6 @@
                     <el-input
 
                             placeholder="请输入内容"
-                            suffix-icon="el-icon-date"
                             v-model="input3">
                     </el-input>
                 </div>
@@ -98,7 +73,6 @@
                     <el-input
 
                             placeholder="请输入内容"
-                            suffix-icon="el-icon-date"
                             v-model="input4">
                     </el-input>
                 </div>
@@ -106,10 +80,16 @@
                     <el-input
 
                             placeholder="请输入内容"
-                            suffix-icon="el-icon-date"
                             v-model="input5">
                     </el-input>
                 </div>
+            </div>
+            <div>
+                结果：
+                <el-input
+                        placeholder="请输入内容"
+                        v-model="input0">
+                </el-input>
             </div>
         </div>
         <div class="button">
@@ -126,77 +106,94 @@
             // 数据
             return {
                 dialogVisible: false,
-                featureView: [
-                    "", "有毛发", "有奶", "有羽毛", "会飞",
-                    "会下蛋", "吃肉", "有犬齿", "有爪", "眼盯前方",
-                    "有蹄", "嚼反刍", "黄褐色", "身上有暗斑点", "身上有黑色条纹",
-                    "有长脖子", "有长腿", "不会飞", "会游泳", "有黑白二色",
-                    "善飞", "哺乳动物", "鸟", "食肉动物", "蹄类动物"
-                ],
-                factView: [
-                    "", "有毛发", "有奶", "有羽毛", "会飞",
-                    "会下蛋", "吃肉", "有犬齿", "有爪", "眼盯前方",
-                    "有蹄", "嚼反刍", "黄褐色", "身上有暗斑点", "身上有黑色条纹",
-                    "有长脖子", "有长腿", "不会飞", "会游泳", "有黑白二色",
-                    "善飞", "哺乳动物", "鸟", "食肉动物", "蹄类动物",
-                    "金钱豹", "虎", "长颈鹿", "斑马", "鸵鸟",
-                    "企鹅", "信天翁"
-                ],
-                rule: [],
-                selectRuleName: [],
+                // 显示用于提供选择的特征
+                featureView:[],
+                
+                rule: new Map(),
+                ruleView:[],
+                // 在上方已经选中的动物特征表
+                selectRuleName: [], 
                 selectRule: [],
                 animalName: [],
+                display_all:true,
                 input0: "",
-                input1: 0,
-                input2: 0,
-                input3: 0,
-                input4: 0,
-                input5: 0,
+                input1: '',
+                input2: '',
+                input3: '',
+                input4: '',
+                input5: '',
+                ruleChange:false
             }
         },
-        // 生命周期 网页渲染前执行的函数
-        mounted() {
-            // 加载规则文件
-            this.rule = rule;
-            console.log(this.rule)
+        watch: {
+            dialogVisible: function (newval,oldval){
+                this.input0 =  "";
+                this.input1 =  '';
+                this.input2 =  '';
+                this.input3 =  '';
+                this.input4 =  '';
+                this.input5 =  '';
+            }
         },
-        // 方法
+        // 加载初始数据
+        created(){ 
+            this.setRule()
+            this.readFeature();
+            this.initRuleView();
+        },
         methods: {
+            initRuleView: function () {
+                const ruleArr = [];
+                this.rule.forEach((val,key) => {
+                    let topush = [...key.slice(),val];
+                    ruleArr.push(topush);
+                })
+                this.ruleView = ruleArr.map((val,index) => {
+                    let p = val.slice(0,val.length-1);
+                    let q = val[val.length-1];
+                    return `R${index} IF 该动物${p.join(' AND ')} THEN 该动物是${q}`
+                })
+            },
+            setRule: function() {
+                const {rule} = this;
+                animals.forEach(val => {
+                    let key = val.slice(0,val.length-1);
+                    let value = val[val.length-1];
+                    rule.set(key,value);
+                })
+            },
+            readFeature:function() {
+                const {rule} = this;
+                let temp = new Set();
+                animals.forEach((val) => {
+                    // 截取最后一个之前的元素
+                    let toadd = val.slice(0,val.length-1);
+                    
+                    toadd.forEach(val => temp.add(val))
+                })
+                this.featureView = Array.from(temp);
+            },
+            changeFeature:function(toadd) {
+                // toadd 为arr
+                let temp = new Set(this.featureView);
+                toadd.forEach(val => {
+                    if(val !== "" ) {
+                        temp.add(val);
+                    }
+                })
+                this.featureView = Array.from(temp);
+            },
+            // 添加选中特征
             addFact: function (index, name) {
-                if (index !== 0) {
-                    this.selectRuleName.push(name);
-                    this.selectRule.push(index);
-                }
+               const {selectRuleName} = this;
+               let temp = new Set(selectRuleName);
+               temp.add(name);
+               this.selectRuleName = Array.from(temp);
             },
             openDialog: function () {
                 this.dialogVisible = true;
             },
-            matchRule: function () {
-                let count = 0;
-                let flag = true;
-                for (let i = 0; i < this.rule.length; i++) {
-                    // console.log(this.rule[i]);
-                    for (let j = 0; j < this.selectRule.length; j++) {
-                        for (let k = 1; k < this.rule[k].length; k++) {
-                            if (this.selectRule[j] === this.rule[i][k]) {
-                                ++count;
-                            }
-                        }
-                    }
-                    if (this.selectRule.length === count) {
-                        console.log(this.factView[this.rule[i][0]]);
-                        this.animalName.push(this.factView[this.rule[i][0]]);
-                        //return this.rule[i][0];
-                        flag = false;
-                    }
-                    count = 0;
-                }
-                //console.log(0);
-                if (flag) {
-                    this.animalName = ["无匹配"];
-                    return 0;
-                }
-            },
+           
             resetSelect: function () {
                 this.selectRuleName = [];
                 this.selectRule = [];
@@ -204,13 +201,15 @@
             },
             addRule: function () {
                 let newRule = [];
-                newRule.push(parseInt(this.input0));
-                newRule.push(parseInt(this.input1));
-                newRule.push(parseInt(this.input2));
-                newRule.push(parseInt(this.input3));
-                newRule.push(parseInt(this.input4));
-                newRule.push(parseInt(this.input5));
-                this.rule.push(newRule);
+                // newRule.push(this.input0);
+                newRule.push(this.input1);
+                newRule.push(this.input2);
+                newRule.push(this.input3);
+                newRule.push(this.input4);
+                newRule.push(this.input5);
+                let key = Array.from(new Set(newRule.filter(val => val !== "")));
+                // 浅拷贝，避免数据出错
+                this.rule.set(key,this.input0);
 
                 this.$message({
                     message: '添加成功！',
@@ -218,8 +217,54 @@
                 });
 
                 this.dialogVisible = false;
+                // 刷新其他数据
+                this.changeFeature(newRule) 
+                this.initRuleView();
                 console.log(this.rule)
+            },
+            // 推理机
+            infer: function (display = false) {
+                // 存储推理结果的数组
+                let result = [];
+                // set.has 时间复杂度为1
+                let list = new Set(this.selectRuleName);
+                let rule = this.rule;
+                let flag = false;
+                //结果字符串
+                let process = '';
+
+                
+                rule.forEach((val,key) => {
+                    // console.log(key)
+                    if (this.listInSet(key, list)) {
+                        // 添加推导出的结果
+                        console.log(rule.get(key))
+                        list.add(rule.get(key));
+                        result.push(rule.get(key));
+                        // 记录推理过程
+                        process += `${key} 推导出 ${rule.get(key)}\n`;
+                        flag = true;
+                    }
+                })
+                
+                // console.log(result)
+                // 根据flag返回推理结果或无法推出的信息
+                if (flag) {
+                    if (display) {
+                        let temp=  `${process} \n 最终推出: ${result[result.length - 1]}  `;
+                        this.animalName = temp.split('\n');
+                    } else {
+                        let out = ` 最终推出: ${result[result.length - 1]}`;
+                        this.animalName = [out];
+                    }
+                } else {
+                    this.animalName = ['无法推出'];;
+                }
+            },
+            listInSet: function (list, set) {
+                 return list.every(element => set.has(element));
             }
+
         }
 
     })
@@ -233,8 +278,11 @@
     }
 
     .rule {
-        margin: auto;
+        margin: 10px auto;
+        margin-bottom: 20px;
+        height: 700px;
         padding: 0 30px;
+        overflow-y: scroll;
     }
 
     .fact {
@@ -258,7 +306,7 @@
     }
 
     .button {
-        width: 200px;
+        width: 300px;
         margin: auto;
         padding-top: 20px;
         padding-bottom: 30px;
